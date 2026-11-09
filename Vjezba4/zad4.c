@@ -11,23 +11,23 @@ typedef struct Poly {
 } polynom;
 
 
-// Umetanje clana polinoma na odgovarajuce mjesto
+
 int insertSorted(Position head, int coef, int pon)
 {
     Position q = head;
     Position newPoly;
 
-    // Pronalazak mjesta za umetanje
+    
     while (q->next != NULL && q->next->pon > pon)
         q = q->next;
 
-    // Ako vec postoji isti eksponent, zbrajamo koeficijente
+    
     if (q->next != NULL && q->next->pon == pon) {
         q->next->coef += coef;
         return 0;
     }
 
-    // Alokacija novog clana
+    
     newPoly = (Position)malloc(sizeof(polynom));
 
     if (newPoly == NULL)
@@ -36,7 +36,7 @@ int insertSorted(Position head, int coef, int pon)
     newPoly->coef = coef;
     newPoly->pon = pon;
 
-    // Umetanje novog clana u listu
+    
     newPoly->next = q->next;
     q->next = newPoly;
 
@@ -44,7 +44,7 @@ int insertSorted(Position head, int coef, int pon)
 }
 
 
-// Citanje polinoma iz datoteke
+
 int readPoly(Position head, const char* filename)
 {
     FILE* fp;
@@ -69,7 +69,7 @@ int readPoly(Position head, const char* filename)
 }
 
 
-// Ispis polinoma
+
 void printPoly(Position head)
 {
     Position p = head->next;
@@ -121,18 +121,18 @@ void printPoly(Position head)
 }
 
 
-// Zbrajanje polinoma
+
 int addPoly(Position headF, Position headP, Position headQ)
 {
     Position p;
 
-    // Kopiranje prvog polinoma u rezultat
+    
     for (p = headP->next; p != NULL; p = p->next) {
         if (insertSorted(headF, p->coef, p->pon) != 0)
             return -1;
     }
 
-    // Dodavanje drugog polinoma
+    
     for (p = headQ->next; p != NULL; p = p->next) {
         if (insertSorted(headF, p->coef, p->pon) != 0)
             return -1;
@@ -142,7 +142,7 @@ int addPoly(Position headF, Position headP, Position headQ)
 }
 
 
-// Mnozenje polinoma
+
 int multiplyPoly(Position headF, Position headP, Position headQ)
 {
     Position p, q;
@@ -162,7 +162,7 @@ int multiplyPoly(Position headF, Position headP, Position headQ)
 }
 
 
-// Oslobadanje memorije
+
 void deletePoly(Position head)
 {
     Position temp;
@@ -175,20 +175,22 @@ void deletePoly(Position head)
 }
 
 
-int main(void)
+int main()
 {
     polynom headP = { 0, 0, NULL };
     polynom headQ = { 0, 0, NULL };
     polynom headF = { 0, 0, NULL };
     polynom headM = { 0, 0, NULL };
 
-    // Citanje polinoma iz datoteka
+
     if (readPoly(&headP, "polinom1.txt") != 0) {
+        printf("Greska pri citanju prvog polinoma!\n");
         deletePoly(&headP);
         return 1;
     }
 
     if (readPoly(&headQ, "polinom2.txt") != 0) {
+        printf("Greska pri citanju drugog polinoma!\n");
         deletePoly(&headP);
         deletePoly(&headQ);
         return 1;
@@ -200,25 +202,24 @@ int main(void)
     printf("Drugi polinom: ");
     printPoly(&headQ);
 
-    // Zbrajanje
-    if (addPoly(&headF, &headP, &headQ) != 0) {
-        printf("Greska pri zbrajanju!\n");
-        goto cleanup;
+
+    if (addPoly(&headF, &headP, &headQ) == 0) {
+        printf("\nZbroj polinoma: ");
+        printPoly(&headF);
+
+
+        if (multiplyPoly(&headM, &headP, &headQ) == 0) {
+            printf("Umnozak polinoma: ");
+            printPoly(&headM);
+        }
+        else {
+            printf("Greska pri mnozenju polinoma!\n");
+        }
+    }
+    else {
+        printf("Greska pri zbrajanju polinoma!\n");
     }
 
-    printf("\nZbroj polinoma: ");
-    printPoly(&headF);
-
-    // Mnozenje
-    if (multiplyPoly(&headM, &headP, &headQ) != 0) {
-        printf("Greska pri mnozenju!\n");
-        goto cleanup;
-    }
-
-    printf("Umnozak polinoma: ");
-    printPoly(&headM);
-
-cleanup:
     deletePoly(&headP);
     deletePoly(&headQ);
     deletePoly(&headF);
